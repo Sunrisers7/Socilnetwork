@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Налаштування чату{% endblock %}
+
+{% block content %}
+<div class='row'>
+    <div class='col-md-6 mx-auto'>
+        <div class='card'>
+            <div class='card-header bg-primary text-white'>
+                <h4 class='mb-0'>Налаштування чату</h4>
+            </div>
+            <div class='card-body'>
+                <form method='post' enctype='multipart/form-data'>
+                    {% csrf_token %}
+                    
+                    <div class='mb-3'>
+                        <label class='form-label'>Тема чату (для всіх)</label>
+                        {{ form.theme }}
+                    </div>
+                    
+                    <div class='mb-3'>
+                        <label class='form-label'>Фонове зображення чату (для всіх)</label>
+                        {{ form.chat_image }}
+                        {% if form.instance.chat_image %}
+                        <img src='{{ form.instance.chat_image.url }}' class='img-fluid rounded mt-2' style='max-height: 150px;'>
+                        {% endif %}
+                    </div>
+                    
+                    <button type='submit' class='btn btn-primary w-100'>Зберегти</button>
+                    <a href='{% url 'chat:room' chatroom.pk %}' class='btn btn-secondary w-100 mt-2'>Скасувати</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

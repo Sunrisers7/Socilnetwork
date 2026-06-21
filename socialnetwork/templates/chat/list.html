@@ -1,0 +1,50 @@
+@"
+{% extends 'base.html' %}
+
+{% block title %}Чати{% endblock %}
+
+{% block content %}
+<div class='row'>
+    <div class='col-md-8 mx-auto'>
+        <h2 class='mb-3'>Мої чати</h2>
+        
+        {% if chat_rooms %}
+        <div class='list-group'>
+            {% for room in chat_rooms %}
+            <a href='{% url 'chat:room' room.pk %}' class='list-group-item list-group-item-action'>
+                <div class='d-flex align-items-center'>
+                    <div class='bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3' style='width: 50px; height: 50px;'>
+                        <i class='fas fa-comments'></i>
+                    </div>
+                    <div class='flex-grow-1'>
+                        <h6 class='mb-1'>
+                            {% if room.room_type == 'private' %}
+                                {% for participant in room.participants.all %}
+                                    {% if participant != user %}
+                                        {{ participant.username }}
+                                    {% endif %}
+                                {% endfor %}
+                            {% else %}
+                                {{ room.name|default:'Груповий чат' }}
+                            {% endif %}
+                        </h6>
+                        <small class='text-muted'>
+                            {{ room.participants.count }} учасників |
+                            {{ room.created_at|date:'d.m.Y' }}
+                        </small>
+                    </div>
+                    <i class='fas fa-chevron-right text-muted'></i>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class='alert alert-info text-center'>
+            <i class='fas fa-comments fa-3x mb-3'></i>
+            <h5>У вас поки немає чатів</h5>
+            <p>Знайдіть друзів у <a href='{% url 'friends:list' %}' class='alert-link'>друзях</a>, щоб почати спілкування.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

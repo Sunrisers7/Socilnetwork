@@ -1,0 +1,93 @@
+@"
+{% extends 'base.html' %}
+
+{% block title %}{{ profile_user.username }} - Профіль{% endblock %}
+
+{% block content %}
+<div class='row'>
+    <div class='col-md-4'>
+        <div class='card'>
+            {% if profile_user.profile.cover_image %}
+            <img src='{{ profile_user.profile.cover_image.url }}' class='card-img-top' style='height: 150px; object-fit: cover;'>
+            {% else %}
+            <div class='bg-primary' style='height: 150px;'></div>
+            {% endif %}
+
+            <div class='card-body text-center'>
+                {% if profile_user.profile.avatar %}
+                <img src='{{ profile_user.profile.avatar.url }}' class='rounded-circle' width='100' height='100' style='object-fit: cover; margin-top: -70px; border: 3px solid white;'>
+                {% else %}
+                <div class='rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mx-auto' style='width: 100px; height: 100px; margin-top: -70px; border: 3px solid white; font-size: 40px;'>
+                    {{ profile_user.username|slice:':1'|upper }}
+                </div>
+                {% endif %}
+
+                <h3 class='mt-2'>{{ profile_user.username }}</h3>
+
+                {% if profile_user.get_full_name %}
+                <p class='text-muted'>{{ profile_user.get_full_name }}</p>
+                {% endif %}
+
+                {% if profile_user.profile.bio %}
+                <p>{{ profile_user.profile.bio }}</p>
+                {% endif %}
+
+                <div class='mt-3'>
+                    {% if profile_user.profile.location %}
+                    <span class='badge bg-secondary me-1 mb-1'>
+                        <i class='fas fa-map-marker-alt'></i> {{ profile_user.profile.location }}
+                    </span>
+                    {% endif %}
+
+                    {% if profile_user.profile.website %}
+                    <a href='{{ profile_user.profile.website }}' target='_blank' class='badge bg-info text-decoration-none mb-1'>
+                        <i class='fas fa-globe'></i> Сайт
+                    </a>
+                    {% endif %}
+                </div>
+
+               {% if user == profile_user %}
+<a href='{% url 'accounts:profile_update' %}' class='btn btn-primary mt-3'>
+    <i class='fas fa-edit'></i> Редагувати профіль
+</a>
+{% else %}
+<a href='{% url 'chat:start' profile_user.id %}' class='btn btn-success mt-3'>
+    <i class='fas fa-comment'></i> Написати
+</a>
+{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class='col-md-8'>
+        <h3>Пости {{ profile_user.username }}</h3>
+
+        {% for post in posts %}
+        <div class='card mb-3'>
+            <div class='card-body'>
+                <div class='d-flex align-items-center mb-2'>
+                    {% if post.author.profile.avatar %}
+                    <img src='{{ post.author.profile.avatar.url }}' class='rounded-circle me-2' width='40' height='40' style='object-fit: cover;'>
+                    {% else %}
+                    <div class='rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2' style='width: 40px; height: 40px; font-size: 16px;'>
+                        {{ post.author.username|slice:':1'|upper }}
+                    </div>
+                    {% endif %}
+                    <strong>{{ post.author.username }}</strong>
+                    <small class='text-muted ms-auto'>{{ post.created_at|date:'d.m.Y H:i' }}</small>
+                </div>
+
+                <p>{{ post.content }}</p>
+
+                {% if post.image %}
+                <img src='{{ post.image.url }}' class='img-fluid rounded mb-2' style='max-height: 400px; width: 100%; object-fit: cover;'>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class='alert alert-info'>У користувача поки немає постів</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+"@ | Out-File -FilePath templates\accounts\profile_detail.html -Encoding UTF8

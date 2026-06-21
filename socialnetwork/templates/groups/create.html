@@ -1,0 +1,45 @@
+@"
+{% extends 'base.html' %}
+
+{% block title %}Створити групу{% endblock %}
+
+{% block content %}
+<div class='row'>
+    <div class='col-md-6 mx-auto'>
+        <div class='card'>
+            <div class='card-header bg-primary text-white'>
+                <h3 class='mb-0'>Створити групу</h3>
+            </div>
+            <div class='card-body'>
+                <form method='post' enctype='multipart/form-data'>
+                    {% csrf_token %}
+                    
+                    <div class='mb-3'>
+                        <label for='id_name' class='form-label'>Назва групи</label>
+                        <input type='text' name='name' id='id_name' class='form-control' required>
+                    </div>
+                    
+                    <div class='mb-3'>
+                        <label for='id_description' class='form-label'>Опис</label>
+                        <textarea name='description' id='id_description' class='form-control' rows='4' required></textarea>
+                    </div>
+                    
+                    <div class='mb-3'>
+                        <label for='id_avatar' class='form-label'>Аватар групи</label>
+                        <input type='file' name='avatar' id='id_avatar' class='form-control'>
+                    </div>
+                    
+                    <div class='mb-3 form-check'>
+                        <input type='checkbox' name='is_private' id='id_is_private' class='form-check-input'>
+                        <label for='id_is_private' class='form-check-label'>Приватна група</label>
+                    </div>
+                    
+                    <button type='submit' class='btn btn-primary w-100'>Створити</button>
+                    <a href='{% url 'groups:list' %}' class='btn btn-secondary w-100 mt-2'>Скасувати</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+"@ | Out-File -FilePath templates\groups\create.html -Encoding UTF8

@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}Чат{% endblock %}
+
+{% block content %}
+<div class='row'>
+    <div class='col-md-8 mx-auto'>
+        <div class='card'>
+            <!-- Динамічний хедер -->
+            <div class='card-header d-flex align-items-center' style='
+                background: {{ chat_room.get_theme_colors.bg }};
+                border-bottom: 2px solid {{ chat_room.get_theme_colors.bubble_sent }};
+            '>
+                <a href='{% url 'chat:list' %}' class='me-3' style='color: {{ chat_room.get_theme_colors.text_recv }};'>
+                    <i class='fas fa-arrow-left'></i>
+                </a>
+
+                {% if chat_room.room_type == 'private' %}
+                    {% for participant in chat_room.participants.all %}
+                        {% if participant != user %}
+                            {% if participant.profile.avatar and participant.profile.avatar.url != '/media/default.png' %}
+                                <img src='{{ participant.profile.avatar.url }}' class='rounded-circle me-2' width='35' height='35' style='object-fit: cover; border: 2px solid {{ chat_room.get_theme_colors.bubble_sent }};'>
+                            {% else %}
+                                <div class='rounded-circle d-flex align-items-center justify-content-center me-2' style='width: 35px; height: 35px; font-size: 16px; font-weight: bold; background: {{ chat_room.get_theme_colors.bubble_sent }}; color: {{ chat_room.get_theme_colors.text_sent }};'>
+                                    {{ participant.username|slice:':1'|upper }}
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <div class='rounded-circle d-flex align-items-center justify-content-center me-2' style='width: 35px; height: 35px; font-size: 16px; font-weight: bold; background: {{ chat_room.get_theme_colors.bubble_sent }}; color: {{ chat_room.get_theme_colors.text_sent }};'>
+                        {{ chat_room.name|default:'Г'|slice:':1'|upper }}
+                    </div>
+                {% endif %}
+
+                <h5 class='mb-0 flex-grow-1' style='color: {{ chat_room.get_theme_colors.text_recv }};'>
+                    {% if chat_room.room_type == 'private' %}
+                        {% for participant in chat_room.participants.all %}
+                            {% if participant != user %}
+                                {{ participant.username }}
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        {{ chat_room.name|default:'Груповий чат' }}
+                    {% endif %}
+                </h5>
+
+                <div class='dropdown'>
+                    <button class='btn btn-sm dropdown-toggle' style='background: {{ chat_room.get_theme_colors.bubble_sent }}; color: {{ chat_room.get_theme_colors.text_sent }};' data-bs-toggle='dropdown'>
+                        <i class='fas fa-palette'></i>
+                    </button>
+                    <ul class='dropdown-menu dropdown-menu-end'>
+                        <li>
+                            <a class='dropdown-item' href='{% url 'chat:user_settings' chat_room.pk %}'>
+                                <i class='fas fa-user-cog'></i> Мої налаштування
+                            </a>
+                        </li>
+                        <li>
+                            <a class='dropdown-item' href='{% url 'chat:settings' chat_room.pk %}'>
+                                <i class='fas fa-cog'></i> Налаштування чату
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Повідомлення -->
+            <div class='card-body' style='height: 400px; overflow-y: auto;
+                {% if customization.custom_image %}
+                    background-image: url({{ customization.custom_image.url }}); background-size: cover; background-position: center;
+                {% else %}
+                    background: {{ chat_room.get_theme_colors.bg }};
+                {% endif %}
+            ' id='chat-messages'>
+                {% for msg in messages_list %}
+                <div class='mb-3 {% if msg.sender == user %}text-end{% endif %}'>
+                    {% if msg.sender != user %}
+                    <div class='d-flex align-items-end mb-1'>
+                        {% if msg.sender.profile.avatar and msg.sender.profile.avatar.url != '/media/default.png' %}
+                            <img src='{{ msg.sender.profile.avatar.url }}' class='rounded-circle me-1' width='20' height='20' style='object-fit: cover;'>
+                        {% else %}
+                            <div class='rounded-circle d-flex align-items-center justify-content-center me-1' style='width: 20px; height: 20px; font-size: 10px; font-weight: bold; background: {{ chat_room.get_theme_colors.bubble_recv }}; color: {{ chat_room.get_theme_colors.text_recv }};'>
+                                {{ msg.sender.username|slice:':1'|upper }}
+                            </div>
+                        {% endif %}
+                        <strong class='small' style='color: {{ chat_room.get_theme_colors.text_recv }};'>{{ msg.sender.username }}</strong>
+                    </div>
+                    {% endif %}
+
+                    <div class='d-inline-block rounded p-2' style='max-width: 70%;
+                        {% if msg.sender == user %}
+                            background: {{ chat_room.get_theme_colors.bubble_sent }};
+                            color: {{ chat_room.get_theme_colors.text_sent }};
+                        {% else %}
+                            background: {{ chat_room.get_theme_colors.bubble_recv }};
+                            color: {{ chat_room.get_theme_colors.text_recv }};
+                        {% endif %}
+                    '>
+                        {% if msg.content %}
+                        <p class='mb-1'>{{ msg.content }}</p>
+                        {% endif %}
+
+                        {% if msg.file %}
+                        <img src='{{ msg.file.url }}' class='img-fluid rounded mb-1' style='max-height: 200px; cursor: pointer;' onclick='window.open(this.src)'>
+                        {% endif %}
+
+                        <small class='d-block opacity-75'>
+                            {{ msg.created_at|date:'H:i' }}
+                        </small>
+                    </div>
+                </div>
+                {% empty %}
+                <div class='text-center mt-5' style='opacity: 0.6;'>
+                    <i class='fas fa-comments fa-3x mb-3' style='color: {{ chat_room.get_theme_colors.text_recv }};'></i>
+                    <p style='color: {{ chat_room.get_theme_colors.text_recv }};'>Повідомлень поки немає. Почніть розмову!</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Форма відправки -->
+            <div class='card-footer' style='background: {{ chat_room.get_theme_colors.bg }}; border-top: 2px solid {{ chat_room.get_theme_colors.bubble_sent }};'>
+                <form method='post' action='{% url 'chat:send_message' chat_room.pk %}' enctype='multipart/form-data'>
+                    {% csrf_token %}
+                    <div class='input-group'>
+                        <input type='text' name='content' class='form-control' placeholder='Напишіть повідомлення...' autofocus style='border-color: {{ chat_room.get_theme_colors.bubble_sent }};'>
+                        <input type='file' name='image' accept='image/*' class='form-control' style='max-width: 60px; padding: 6px; border-color: {{ chat_room.get_theme_colors.bubble_sent }};' title='Відправити фото'>
+                        <button type='submit' class='btn' style='background: {{ chat_room.get_theme_colors.bubble_sent }}; color: {{ chat_room.get_theme_colors.text_sent }};'>
+                            <i class='fas fa-paper-plane'></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var chatMessages = document.getElementById('chat-messages');
+    if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+});
+</script>
+{% endblock %}

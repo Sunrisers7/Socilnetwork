@@ -1,0 +1,52 @@
+@"
+{% extends 'base.html' %}
+
+{% block title %}Групи{% endblock %}
+
+{% block content %}
+<div class='row'>
+    <div class='col-md-12'>
+        <div class='d-flex justify-content-between align-items-center mb-3'>
+            <h2>Групи</h2>
+            <a href='{% url 'groups:create' %}' class='btn btn-primary'>
+                <i class='fas fa-plus'></i> Створити групу
+            </a>
+        </div>
+
+        <div class='row'>
+            {% for group in groups %}
+            <div class='col-md-4 mb-3'>
+                <div class='card h-100'>
+                    {% if group.avatar %}
+                    <img src='{{ group.avatar.url }}' class='card-img-top' style='height: 150px; object-fit: cover;'>
+                    {% else %}
+                    <div class='bg-secondary text-white text-center' style='height: 150px; line-height: 150px;'>
+                        <i class='fas fa-users fa-3x'></i>
+                    </div>
+                    {% endif %}
+                    <div class='card-body'>
+                        <h5 class='card-title'>
+                            <a href='{% url 'groups:detail' group.pk %}' class='text-decoration-none'>
+                                {{ group.name }}
+                            </a>
+                        </h5>
+                        <p class='card-text small'>{{ group.description|truncatewords:15 }}</p>
+                    </div>
+                    <div class='card-footer text-muted small'>
+                        <i class='fas fa-user'></i> {{ group.members_count }} учасників
+                        <span class='float-end'>{{ group.created_at|date:'d.m.Y' }}</span>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class='col-12'>
+                <div class='alert alert-info'>
+                    Поки немає груп. <a href='{% url 'groups:create' %}'>Створіть першу!</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+"@ | Out-File -FilePath templates\groups\list.html -Encoding UTF8

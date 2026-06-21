@@ -1,0 +1,53 @@
+@"
+{% extends 'base.html' %}
+
+{% block title %}{{ group.name }}{% endblock %}
+
+{% block content %}
+<div class='row'>
+    <div class='col-md-8'>
+        <div class='card'>
+            {% if group.avatar %}
+            <img src='{{ group.avatar.url }}' class='card-img-top' style='height: 200px; object-fit: cover;'>
+            {% endif %}
+            <div class='card-body'>
+                <h2>{{ group.name }}</h2>
+                <p>{{ group.description }}</p>
+
+                <div class='mb-3'>
+                    <small class='text-muted'>
+                        <i class='fas fa-user'></i> {{ group.members_count }} учасників |
+                        <i class='fas fa-calendar'></i> Створено {{ group.created_at|date:'d.m.Y' }} |
+                        <i class='fas fa-user'></i> Автор: {{ group.created_by.username }}
+                    </small>
+                </div>
+
+                {% if user.is_authenticated %}
+                <div class='d-flex gap-2'>
+                    <form method='post' action='{% url 'groups:join' group.pk %}'>
+                        {% csrf_token %}
+                        <button type='submit' class='btn btn-success'>Приєднатися</button>
+                    </form>
+                    <form method='post' action='{% url 'groups:leave' group.pk %}'>
+                        {% csrf_token %}
+                        <button type='submit' class='btn btn-danger'>Покинути</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class='col-md-4'>
+        <div class='card'>
+            <div class='card-header'>
+                <h5>Дії</h5>
+            </div>
+            <div class='card-body'>
+                <a href='{% url 'groups:list' %}' class='btn btn-secondary w-100'>Назад до списку</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+"@ | Out-File -FilePath templates\groups\detail.html -Encoding UTF8

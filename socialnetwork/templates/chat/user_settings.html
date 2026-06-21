@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Мої налаштування чату{% endblock %}
+
+{% block content %}
+<div class='row'>
+    <div class='col-md-6 mx-auto'>
+        <div class='card'>
+            <div class='card-header bg-primary text-white'>
+                <h4 class='mb-0'>Мої налаштування чату</h4>
+            </div>
+            <div class='card-body'>
+                <div class='alert alert-info'>
+                    <i class='fas fa-info-circle'></i>
+                    Ці налаштування видно тільки вам. Вони перезаписують загальні налаштування чату.
+                </div>
+                
+                <form method='post' enctype='multipart/form-data'>
+                    {% csrf_token %}
+                    
+                    <div class='mb-3'>
+                        <label class='form-label'>Моя тема</label>
+                        {{ form.custom_theme }}
+                    </div>
+                    
+                    <div class='mb-3'>
+                        <label class='form-label'>Моє фонове зображення</label>
+                        {{ form.custom_image }}
+                        {% if form.instance.custom_image %}
+                        <img src='{{ form.instance.custom_image.url }}' class='img-fluid rounded mt-2' style='max-height: 150px;'>
+                        {% endif %}
+                    </div>
+                    
+                    <button type='submit' class='btn btn-primary w-100'>Зберегти</button>
+                    <a href='{% url 'chat:room' form.instance.room.pk %}' class='btn btn-secondary w-100 mt-2'>Назад до чату</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
